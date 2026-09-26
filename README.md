@@ -17,15 +17,22 @@ It targets **Tripo API v3** (`https://openapi.tripo3d.ai/v3`). Tripo is retiring
 
 ## Installation
 
+The server is not published to a package registry yet, so install it from GitHub. Requires Node.js 18 or later and git.
+
 ```bash
-npm install -g tripo-ai-mcp-server
+git clone https://github.com/ebrob/tripo3d-mcp-server.git
+cd tripo3d-mcp-server
+npm install
+npm run build
 ```
 
-Requires Node.js 18 or later.
+This builds the server to `dist/index.js`. Note the absolute path to that file (run `echo "$PWD/dist/index.js"` from the repo folder). The client configuration below needs it.
+
+To update later, run `git pull`, `npm install` and `npm run build` in the same folder, then restart your MCP client.
 
 ## Configuration
 
-Create an API key in the [Tripo API console](https://platform.tripo3d.ai/). API credits are separate from a Tripo Studio subscription. Provide the key as `TRIPO_API_KEY`, in the environment or in a `.env` file. `TRIPO_API_SECRET` still works as a fallback.
+Create an API key in the [Tripo API console](https://platform.tripo3d.ai/). API credits are separate from a Tripo Studio subscription. Provide the key as `TRIPO_API_KEY`, in the environment or in a `.env` file in the directory the server runs from. For MCP clients, setting it in the client's `env` block (below) is the most reliable. `TRIPO_API_SECRET` still works as a fallback.
 
 Optional: `TRIPO_API_BASE_URL` overrides the base URL, for example to use a regional endpoint.
 
@@ -37,8 +44,8 @@ Add to `claude_desktop_config.json` or a project `.mcp.json`:
 {
   "mcpServers": {
     "tripo3d": {
-      "command": "npx",
-      "args": ["-y", "tripo-ai-mcp-server"],
+      "command": "node",
+      "args": ["/absolute/path/to/tripo3d-mcp-server/dist/index.js"],
       "env": {
         "TRIPO_API_KEY": "your_api_key_here"
       }
@@ -118,25 +125,9 @@ Version 2.0.0 moves to Tripo API v3, and some tool arguments changed:
 
 ## Development
 
-1. Clone the repo.
-2. `npm install`
-3. `npm run build`
-4. `TRIPO_API_KEY=… node dist/index.js`
-
-## Publishing to npm
-
-A GitHub Actions workflow (`.github/workflows/publish.yml`) publishes the package to npm whenever a GitHub Release is created.
-
-**One-time setup:**
-
-1. Generate an npm **Automation** token at [npmjs.com](https://www.npmjs.com) → Avatar → Access Tokens → Generate New Token → Automation.
-2. Add it as a repository secret in GitHub: Settings → Secrets and variables → Actions → New repository secret → name it `NPM_TOKEN`.
-
-**To release a new version:**
-
-1. Bump `"version"` in `package.json`.
-2. Commit and push.
-3. Create a GitHub Release tagged with the version (for example `v2.0.0`). The workflow publishes to npm.
+1. Clone the repo and install dependencies as in [Installation](#installation).
+2. After editing `src/`, run `npm run build` again.
+3. Run the server directly with `TRIPO_API_KEY=… node dist/index.js`.
 
 ## License
 
