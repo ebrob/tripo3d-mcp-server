@@ -480,13 +480,13 @@ tool(
 
 tool(
   'wait_for_task',
-  'Poll a task until it finishes or the timeout passes, then return it. If it is still running, call again; the task keeps running on Tripo either way. Free.',
+  'Poll a task until it finishes or the timeout passes, then return it. If it is still running, call again; the task keeps running on Tripo either way. 3D generation typically takes 2–5 minutes. Free.',
   {
     task_id: z.string(),
-    timeout_seconds: z.number().int().min(1).max(600).optional().describe('How long to wait. Default 90.'),
+    timeout_seconds: z.number().int().min(1).max(600).optional().describe('How long to wait. Default 50, which stays under the 60-second request timeout many MCP clients use; raise it only if your client allows longer calls.'),
     poll_interval_seconds: z.number().int().min(1).max(30).optional().describe('Default 3.'),
   },
-  async ({ task_id, timeout_seconds = 90, poll_interval_seconds = 3 }, extra) => {
+  async ({ task_id, timeout_seconds = 50, poll_interval_seconds = 3 }, extra) => {
     const deadline = Date.now() + timeout_seconds * 1000;
     const progressToken = extra?._meta?.progressToken;
     let task: TripoTask;
@@ -515,7 +515,7 @@ tool(
   {
     task_id: z.string(),
     output_dir: z.string().describe('Folder to save into (created if missing).'),
-    file_prefix: z.string().optional().describe('Filename prefix, e.g. "chair" gives chair-model.glb and chair-rendered_image.webp. Default is the task ID.'),
+    file_prefix: z.string().optional().describe('Base filename. "chair" saves the model as chair.glb, the preview render as chair-preview.png, and any other outputs as chair-<output-name>. Default is the task ID.'),
     overwrite: z.boolean().optional().describe('Overwrite existing files. Default false.'),
   },
   async ({ task_id, output_dir, file_prefix, overwrite = false }) => {
@@ -542,7 +542,8 @@ tool(
     const prefix = file_prefix ?? task_id;
     const targets = urls.map(([name, url]) => {
       const ext = path.extname(new URL(url).pathname) || '.bin';
-      return { name, url, file: path.join(dir, `${prefix}-${name}${ext}`) };
+      const suffix = name === 'model' ? '' : `-${name === 'rendered_image' ? 'preview' : name.replace(/_/g, '-')}`;
+      return { name, url, file: path.join(dir, `${prefix}${suffix}${ext}`) };
     });
     if (!overwrite) {
       const existing = targets.filter((t) => fs.existsSync(t.file)).map((t) => t.file);

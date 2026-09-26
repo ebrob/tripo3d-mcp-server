@@ -98,8 +98,8 @@ These share the generation options: `model` (default `v3.1-20260211`), `face_lim
 | --- | --- |
 | `get_task_status` | Status, progress, outputs and credits consumed for a task. |
 | `get_tasks` | Status of up to 100 tasks at once. |
-| `wait_for_task` | Poll until a task finishes (default 90 s timeout; call again to keep waiting). |
-| `download_task_output` | Save all output files (model, preview, images) to a folder. |
+| `wait_for_task` | Poll until a task finishes (default 50 s, under common client timeouts; call again to keep waiting). |
+| `download_task_output` | Save all output files to a folder as `<name>.glb`, `<name>-preview.png`, and so on. |
 | `upload_file` | Upload a local image or model and get a reusable `file_token`. |
 | `get_balance` | Available and frozen credits. |
 | `get_usage` | Recent tasks and the credits each consumed. |
